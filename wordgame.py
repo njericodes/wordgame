@@ -1,10 +1,9 @@
 import csv
 import numpy as np
 import pandas as pd
-#from sklearn.pipeline import Pipeline
-#from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import GaussianNB
 from gensim.models.keyedvectors import KeyedVectors
-
+from sklearn.ensemble import RandomForestClassifier
 #load dataset
 lines = csv.reader(open('wordgame.csv', 'rb'))
 dataset = list(lines)
@@ -46,35 +45,24 @@ split = np.random.rand(len(data))<0.8
 train = data[split] 
 test = data[~split]
 
-#build vectors 
-def buil_vectors():
-    return v
-#pass through the pipeline
+x = train['similarity'].values.tolist()
+x = np.reshape(np.array(x),(len(x),1))
 
+y = train['source'].values.tolist()
+y = np.reshape(np.array(y),(len(y),1))
 
-#x1_train = x1[0:split]
-#x1_test =  x1[split:len(x1)]
-#x2_train = x2[0:split]
-#x2_test = x2[split:len(x2)]
-    
-#y_train = y[0:split]
-#y_test = y[split:len(y)]
-    
-    #X_train = list(zip(x1_train,x2_train))
-    #X_train = np.array(X_train)
-    #y_train = np.array(y_train)
-    
-    #count_vect =  CountVectorizer()
-    #x1_train_counts = count_vect.fit_transform(x1_train)
-    #print x1_train_counts.shape
-    
-    #use a Naive Bayes Classifier
-    #clf = MultinomialNB()
-    #clf.fit(X_train, y_train)
-  
-    
-    #see how well we are doing
-    #X_test = []
-    #X_test = list(zip(x1_test,x2_test))
-    #X_test = np.array(X_test) 
-    #print clf.score(x1_test,x2_test,y_test)
+x_test = test['similarity'].values.tolist()
+x_test = np.reshape(np.array(x_test),(len(x_test),1))
+
+y_test = test['similarity'].values.tolist()
+y_test = np.reshape(np.array(y_test),(len(y_test),1))
+
+#NB
+clf1 = GaussianNB()
+clf1.fit(x,y)
+pred1 = clf1.predict(x_test)
+
+#Random forest 
+clf2 = RandomForestClassifier()
+clf2.fit(x,y)
+pred2 = clf2.predict(x_test)
