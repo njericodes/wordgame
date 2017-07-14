@@ -44,6 +44,7 @@ data['similarity'] = data.apply(similarity, axis=1)
 split = np.random.rand(len(data))<0.8
 train = data[split] 
 test = data[~split]
+print train 
 
 x = train['similarity'].values.tolist()
 x = np.reshape(np.array(x),(len(x),1))
@@ -54,15 +55,18 @@ y = np.reshape(np.array(y),(len(y),1))
 x_test = test['similarity'].values.tolist()
 x_test = np.reshape(np.array(x_test),(len(x_test),1))
 
-y_test = test['similarity'].values.tolist()
+y_test = test['source'].values.tolist()
 y_test = np.reshape(np.array(y_test),(len(y_test),1))
 
-#NB
+#Gaussian NB
 clf1 = GaussianNB()
 clf1.fit(x,y)
 pred1 = clf1.predict(x_test)
+print (np.intersect1d(pred1,y_test)).size/(float(y_test.size+y.size))
 
 #Random forest 
 clf2 = RandomForestClassifier()
-clf2.fit(x,y)
+clf2.fit(x,y.ravel())
 pred2 = clf2.predict(x_test)
+print (np.intersect1d(pred2,y_test)).size/(float(y_test.size+y.size))
+
