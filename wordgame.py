@@ -1,9 +1,13 @@
 import csv
+import gensim
 import numpy as np
-import pandas as pd
-from sklearn.naive_bayes import GaussianNB
-from gensim.models.keyedvectors import KeyedVectors
-from sklearn.ensemble import RandomForestClassifier
+#import pandas as pd
+from collections import defaultdict
+#from sklearn.naive_bayes import GaussianNB
+#from gensim.models.keyedvectors import KeyedVectors
+from sklearn.feature_extraction.text import TfidfVectorizer
+#from sklearn.ensemble import RandomForestClassifier
+
 #load dataset
 lines = csv.reader(open('wordgame.csv', 'rb'))
 dataset = list(lines)
@@ -20,15 +24,48 @@ for i in range (1,len(dataset)):
     #source
     y.append(str(dataset[i][3]).lower())
 
+#a list of lists for word2vec
+X = [[x1[i],x2[i]] for i in range(len(x1))]
+
+#word2vec model
+model = gensim.models.Word2Vec(X,size=100)
+#w2v = dict(zip(model.wv.index2word,model.wv.syn0))
+print model.wv.index2word
+print model.wv.syn0
+
+'''
+#make feature vector
+class TfIdfVectorizer(object):
+    
+    def _init_(self,word2vec):
+        self.word2vec = word2vec
+        self.word2weight = None
+        self.dim = len(word2vec.itervalues().next())
+        
+    def tf_idf(self,x,y):
+        tfidf = TfidfVectorizer(analyzer=lambda x:x)
+        tfidf.fit(x)
+        max_idf = max(tfidf.idf_)
+        self.word2weight = defaultdict(
+                lambda: max_idf,
+                [(w,tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
+        return self
+    
+    def transform(self,x):
+        return np.array([
+                np.mean([self.word2vec[w] for w in words if w in self.word2vec]
+                        or [np.zeros(self.dim)],axis=0)
+                for words in x])
+'''  
 #make dataframe to hold the values  
-data = pd.DataFrame(
+'''data = pd.DataFrame(
    {'word1':x1,
     'word2':x2, 
      'source':y,
    })
-      
-#word2vec model
-model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+ 
+     
+
 
 #redefine similarity for the word2vec model
 def similarity(row):
@@ -69,4 +106,4 @@ clf2 = RandomForestClassifier()
 clf2.fit(x,y.ravel())
 pred2 = clf2.predict(x_test)
 print (np.intersect1d(pred2,y_test)).size/(float(y_test.size+y.size))
-
+'''
